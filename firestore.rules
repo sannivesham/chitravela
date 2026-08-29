@@ -1,0 +1,52 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- word list, managed from /admin ----
+    match /words/{wordId} {
+      allow read: if true;
+      allow write: if request.auth != null
+                   && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // ---- admin allowlist: uid -> {allowed:true}, added by hand in console ----
+    match /admins/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false; // never writable from the client
+    }
+
+    // ---- game rooms ----
+    match /rooms/{roomCode} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      // any player who has joined this room may update shared room state
+      // (host advances phases/timers, current drawer posts scores/hints)
+      allow update: if request.auth != null &&
+        exists(/databases/$(database)/documents/rooms/$(roomCode)/players/$(request.auth.uid));
+
+      match /players/{uid} {
+        allow read: if true;
+        allow write: if request.auth != null && request.auth.uid == uid;
+      }
+
+      match /chat/{msgId} {
+        allow read: if true;
+        allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+        allow update, delete: if false;
+      }
+
+      match /strokes/{turnId} {
+        allow read: if true;
+        allow write: if request.auth != null &&
+          get(/databases/$(database)/documents/rooms/$(roomCode)).data.drawerId == request.auth.uid;
+      }
+
+      // the actual secret word — only the current drawer can ever read or write it
+      match /secretWord/{turnId} {
+        allow create: if request.auth != null && request.resource.data.drawerId == request.auth.uid;
+        allow read, update: if request.auth != null && resource.data.drawerId == request.auth.uid;
+      }
+    }
+  }
+}
