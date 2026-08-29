@@ -299,13 +299,37 @@ document.getElementById("playAgainBtn").onclick = async () => {
     const metaSnap = await get(ref(db, `rooms/${savedRoom}/meta`));
     const playerSnap = await get(ref(db, `rooms/${savedRoom}/players/${uid}`));
     if (metaSnap.exists() && playerSnap.exists()) {
-      await update(ref(db, `rooms/${savedRoom}/players/${uid}`), { connected: true });
-      isRoomHost = metaSnap.val().hostId === uid;
-      const status = metaSnap.val().status;
-      if (status === "lobby") enterLobby(savedRoom);
-      else { currentRoomId = savedRoom; enterGame(savedRoom); }
+      offerReconnect(savedRoom, metaSnap.val());
     } else {
       localStorage.removeItem("chitravela_room");
     }
   }
 })();
+
+// Instead of silently jumping away from the home screen, surface a small
+// dismissible banner so opening the site always shows the home page first.
+function offerReconnect(roomId, meta) {
+  const banner = document.getElementById("reconnectBanner");
+  const text = document.getElementById("reconnectText");
+  text.textContent = meta.status === "lobby"
+    ? `Rejoin your lobby (${roomId})?`
+    : `Rejoin your game in progress (${roomId})?`;
+  banner.classList.remove("hidden");
+
+  document.getElementById("reconnectYesBtn").onclick = async () => {
+    banner.classList.add("hidden");
+    await update(ref(db, `rooms/${roomId}/players/${uid}`), { connected: true });
+    isRoomHost = meta.hostId === uid;
+    currentRoomId = roomId;
+    if (meta.status === "lobby") enterLobby(roomId);
+    else enterGame(roomId);
+  };
+  document.getElementById("reconnectNoBtn").onclick = async () => {
+    banner.classList.add("hidden");
+    localStorage.removeItem("chitravela_room");
+    if (uid) {
+      await remove(ref(db, `rooms/${roomId}/players/${uid}`));
+      await leavePublicCountIfNeeded(roomId);
+    }
+  };
+}
