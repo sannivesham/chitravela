@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Chitravela — Draw & Guess</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-theme="dark">
@@ -15,17 +12,8 @@
 
 <!-- HOME SCREEN -->
 <section id="screen-home" class="screen active">
-  <div class="hero">
-    <div class="logo-wrap">
-      <h1 class="logo">chitra<span>vela</span></h1>
-      <svg class="doodle-underline" viewBox="0 0 260 26" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path class="stroke stroke-1" d="M6 18 C 50 6, 90 24, 130 12 S 210 4, 254 16" />
-        <path class="stroke stroke-2" d="M6 22 C 50 12, 90 26, 130 16 S 210 10, 254 20" />
-      </svg>
-    </div>
-    <div class="tagline">draw it. guess it. flex it.</div>
-    <div class="powered-badge">✎ powered by <strong>Sannivesham</strong></div>
-  </div>
+  <div class="logo">chitra<span>vela</span></div>
+  <div class="tagline">draw it. guess it. flex it.</div>
 
   <div class="card">
     <div class="avatar-picker">
@@ -37,7 +25,7 @@
     <button class="btn-primary" id="playPublicBtn">🎲 Play Public</button>
   </div>
 
-  <div class="card card-tilt">
+  <div class="card">
     <div class="row" style="margin-bottom:10px;">
       <button class="btn-accent" id="createRoomBtn">➕ Create Private Room</button>
     </div>
